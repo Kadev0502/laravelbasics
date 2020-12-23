@@ -259,3 +259,44 @@ Route ::get('/posts/{id}', function($id) {
 
 ## Utilisation des controllers
 
+Pour structurer notre projet et respecter le MVC, on va plutôt return dans une route un controller et c'est le controller qui sera chargé d'afficher la vue voulue.
+
+Le controller va se charger de gérer les requêtes vers la BDD(le lien entre la vue et la BDD)
+
+Pour créer un controller, on peut utiliser la console : `php artisan make:controller NomController`
+> cela va créer le fichier **app/Http/Controllers/PostController.php**
+
+- on va donc créer une route qui aura en deuxième argument un array composé du controller créé et de la method qu'on veut utiliser 
+    ```
+    Route ::get('/posts', [PostController::class,'index']);
+  ```
+  > il faut importer la class du controller : `use App\Http\Controllers\PostController;`
+
+- dans le controller, on va donc définir cette method(_index_)
+    ```
+    public function index()
+        {
+            $posts = [
+                ['id' => 1, 'title' => 'Post One'],
+                ['id' => 2, 'title' => 'Post Two'],
+                ['id' => 3, 'title' => 'Post Three'],
+                ['id' => 4, 'title' => 'Post Four'],
+            ];
+    
+            return view('posts.index', [
+                'posts' => $posts
+            ]);
+        }
+  ```
+- on peut avoir un controller qui n'a pas de nom(pas de method) :
+    - dans ce cas, le controller appelé ne sera pas dans un array : `Route ::get('/',HomeController::class);`
+    - et la method sera une method spéciale (**__invoke**) :
+        ```
+        public function __invoke()
+            {
+                return view('home');
+            }
+      ```
+- efzqf
+- efzqf
+
