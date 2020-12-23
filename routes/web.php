@@ -7,6 +7,8 @@ Route ::get('/', function() {
     return 'Homepage';
 });
 
-Route ::get('/about', function() {
-    return 'About Page';
-}) -> name('about');
+Route ::get('/users/{username}', function($username) {
+
+    return $username;
+});
+

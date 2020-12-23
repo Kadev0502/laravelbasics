@@ -48,3 +48,13 @@ il existe différentes typ de route(get, post, patch, delete).
 
 on peut ajouter un paramètre à une route pour aller dans un segment de l'url(exemple : hello.com/users/1)
 
+```
+Route ::get('/users/{username}', function($username) {
+
+    return $username;
+});
+```
+
+### Les groupes de routes
+
+
