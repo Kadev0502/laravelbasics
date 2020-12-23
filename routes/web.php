@@ -4,22 +4,16 @@ use Illuminate\Support\Facades\Route;
 
 
 Route ::get('/', function() {
-    return 'Homepage';
+    return view('home');
 });
 
+Route ::get('/posts', function() {
+    return view('posts.index');
+});
 
-Route ::group(['prefix'=>'/user'], function() {
-
-    Route ::get('/login', function() {
-        return 'Welcome';
-    });
-
-    Route ::get('/password', function() {
-        return 'Password';
-    });
-
-    Route ::get('/logout', function() {
-        return 'Bye Bye';
-    });
+Route ::get('/posts/{id}', function($id) {
+    return view('posts.show', [
+        'userId' => $id
+    ]);
 });
 

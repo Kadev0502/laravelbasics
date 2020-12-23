@@ -77,3 +77,43 @@ Route ::group(['prefix'=>'/user'], function() {
 > on peut y ajouter un namespace, un middleware
 
 ## Rendu d'une vue
+Comme dit auparavant, on peut retourner une vue dans une route.
+
+Dans ce cas il faut créer cette vue dans le dossier des vues, puis ajouter cette vue comme return de la route:
+```
+Route ::get('/', function() {
+    return view('home');
+});
+```
+> il faut juste mettre le nom de la vue(sans l'extension blade.php)
+
+- on peut mettre les vues dans un dossier(**resources/views/posts**) pour les séparer en groupe, dans ce cas, le return doit index la vue voulue.
+    ```
+    Route ::get('/posts', function() {
+        return view('posts.index');
+    });
+  ```
+- pour afficher un élément d'un groupe d'éléments dans une vue :
+    ```
+    Route ::get('/posts/{id}', function($id) {
+        return view('posts.show');
+    });
+  ```
+- la route peut retourner un second argument qui sera un array contenant des valeurs qu'on veut passer dans la vue
+    ```
+  Route ::get('/posts/{id}', function($id) {
+      return view('posts.show',[
+           'userId' => $id
+      ]);
+  });
+  ```
+  > ici on passe comme valeur dans la vue la valeur de la variable id(celui saisi en troisième segment de l'url)
+
+    - dans la vue, on utilisera la syntaxe de blade pour afficher la variable : 
+        ```
+         <body>
+                {{ $userId }}
+            </body>
+      ```
+
+
