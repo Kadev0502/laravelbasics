@@ -22,7 +22,7 @@ Lors de l'utilisation de la console(artisan), on peut voir les commande disponib
 
 Exemple : `php artisan make:controller --help`
 
-## Les routs basiques
+## Les routes basiques
 
 C'est **routes/web.php** qu'on va créer les routes de notre projet.
 
@@ -115,5 +115,62 @@ Route ::get('/', function() {
                 {{ $userId }}
             </body>
       ```
+
+### les bases de Blade
+
+pour comprendre comment fonctionne blade :
+- on va créer une route contenant un array et qui retourne une vue et la variable 
+    ```
+    Route ::get('/posts',function () {
+        $posts = [
+            ['id'=>1, 'title'=>'Post One'],
+            ['id'=>2, 'title'=>'Post Two'],
+            ['id'=>3, 'title'=>'Post Three'],
+            ['id'=>4, 'title'=>'Post Four'],
+        ];
+    
+         return view('posts.index',[
+                'posts' => $posts
+            ]);
+    });
+    
+  ```
+- en utilisant la syntaxe de Blade :
+    -  on va vérifier que des posts existe 
+        ```
+         <body>
+               <h1> Liste des posts</h1>
+        
+               @if (count($posts))
+                   Il existe des posts
+                 @else
+                    il n'y a pas de posts
+               @endif
+            </body>
+       ```
+    -  on va afficher tous les posts s'il y en y a:
+        ```
+         <body>
+               <h1> Liste des posts</h1>
+        
+               @if (count($posts))
+                @foreach ($posts as $post)
+                    <div>
+                        {{ $post['id'] }}  : {{ $post['title'] }}
+                    </div>
+                @endforeach
+                @else
+                   il n'y a pas de posts
+               @endif
+            </body>
+       ```
+       > on peut récupérer l'index de chaque valeur dans un tableau : ` @foreach ($posts as $index=> $post)`
+    -  on va vérifier que des posts existe 
+    -  on va vérifier que des posts existe 
+
+- dsqf
+- dsqf
+- dsqf
+
 
 

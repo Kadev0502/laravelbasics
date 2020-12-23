@@ -7,6 +7,16 @@
         <title>Document</title>
     </head>
     <body>
-        Lists des posts
+        <h1> Liste des posts</h1>
+
+        @if (count($posts))
+            @foreach ($posts as $index=> $post)
+                <div>
+                    {{ $post['id'] }} : {{ $post['title'] }} ({{ $index }})
+                </div>
+            @endforeach
+        @else
+            il n'y a pas de posts
+        @endif
     </body>
 </html>
