@@ -57,4 +57,23 @@ Route ::get('/users/{username}', function($username) {
 
 ### Les groupes de routes
 
+au lieu de répéter plusieurs routes qui ont un même préfixe, on peut les grouper :
+```
+Route ::group(['prefix'=>'/user'], function() {
 
+    Route ::get('/login', function() {
+        return 'Welcome';
+    });
+
+    Route ::get('/password', function() {
+        return 'Password';
+    });
+
+    Route ::get('/logout', function() {
+        return 'Bye Bye';
+    });
+});
+```
+> on peut y ajouter un namespace, un middleware
+
+## Rendu d'une vue

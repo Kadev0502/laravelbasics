@@ -7,8 +7,19 @@ Route ::get('/', function() {
     return 'Homepage';
 });
 
-Route ::get('/users/{username}', function($username) {
 
-    return $username;
+Route ::group(['prefix'=>'/user'], function() {
+
+    Route ::get('/login', function() {
+        return 'Welcome';
+    });
+
+    Route ::get('/password', function() {
+        return 'Password';
+    });
+
+    Route ::get('/logout', function() {
+        return 'Bye Bye';
+    });
 });
 
