@@ -3,6 +3,10 @@
 use Illuminate\Support\Facades\Route;
 
 
+Route ::get('/', function() {
+    return view('home');
+});
+
 Route ::get('/posts', function() {
     $posts = [
         ['id' => 1, 'title' => 'Post One'],
@@ -13,6 +17,13 @@ Route ::get('/posts', function() {
 
     return view('posts.index', [
         'posts' => $posts
+    ]);
+});
+
+Route ::get('/posts/{id}', function($id) {
+
+    return view('posts.show', [
+        'id' => $id
     ]);
 });
 

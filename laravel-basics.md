@@ -168,9 +168,94 @@ pour comprendre comment fonctionne blade :
     -  on va vérifier que des posts existe 
     -  on va vérifier que des posts existe 
 
-- dsqf
-- dsqf
-- dsqf
+### Gestion des layouts avec Blade
 
+Pour comprendre comment fonctionne les templates avec blade :
+- on va créer une route permettant d'afficher chaque post dans sa propre vue :
+```
+Route ::get('/posts/{id}', function($id) {
+    
+    return view('posts.show', [
+        'id' => $id
+    ]);
+});
+```
+- on va ensuite créer cette vue :
+    ```
+    <!doctype html>
+    <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+            <meta http-equiv="X-UA-Compatible" content="ie=edge">
+            <title>Document</title>
+        </head>
+        <body>
+            {{ $id }}
+        </body>
+    </html>
 
+  ```
+- avec blade, il est possible de définir une seule fois une page par éfaut pour notre projet et le réutiliser pour les autres vues sans avoir à écrire les meme choses:
+    - on va créer un dossier(**resources/views/layouts**) contenant la vue par défaut
+    - à l'intérieur, on va définir une vue par défaut(on peut en créer plusieurs, une pour la vue du site du projet, une pour le tableau de bord de l'admin, etc...) =>**resources/views/layouts/app.blade.php**
+        ```
+        <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+                <meta http-equiv="X-UA-Compatible" content="ie=edge">
+                <title>Laravel Basics</title>
+            </head>
+            <body>
+            
+            </body>
+        </html>
+      ```
+    - cette vue aura à l'intérieur une syntaxe blade permettant de définir un bloc qui contiendra des éléments selon la vue spécifier dans les routes :
+        ```
+         <body>
+                @yield('content')
+            </body>
+      ```
+      > ici on veut que les autres vues utilise ce template mais leur contenu sera dans le bloc body
+    - dans les autres vues, on va extendre la vue par défaut puis mettre leur contenu dans une section blade qui aura le meme nom que le paramètre du _@yield_ du template par défaut
+        ```
+        @extends('layouts.app')
+        
+        @section('content')
+            @if (count($posts))
+                @foreach ($posts as $index=> $post)
+                    <div>
+                        {{ $post['id'] }} : {{ $post['title'] }} ({{ $index }})
+                    </div>
+                @endforeach
+            @else
+                il n'y a pas de posts
+            @endif
+        @endsection
+      ```
+   
+    
+- on peut créer un dossier dans le dossier **layouts** pour les partials du template
+    - exemple on crée une vue(**resources/views/layouts/partials/_nav.blade.php**) pour la nav 
+        ```
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/posts">Posts</a></li>
+        </ul>
+      ```
+    - puis on l'inclut dans la vue par défaut
+        ```
+         <body>
+                <div>
+                @include('layouts.partials._nav')
+                    
+                @yield('content')
+                </div>
+            </body>
+      ```
+    > on peut faire des partials pour le head, le footer ,etc...
+
+## Utilisation des controllers
 
