@@ -356,4 +356,257 @@ Exemple : `Route ::post('/posts', [PostController::class, 'store'])->name('posts
 On aura alors dans l'action du formulaire : `<form action="{{ route('posts.store') }}" method="post">`
 > on utilise la fonction route de blade .
 
-gsvqvw
+## Validation des formulaires
+
+Pour éviter d'envoyer un formulaire vide ou des données non-valides, on va gérer la validité des informations saisies dans le formulaire :
+
+On va gérer la validité des inputs du formulaire dans la method _store_ du controller :
+
+Exemple pour le formulaire post, on veut un titre,avec max 20 caractères et min 4 caractères, sinon il redirige vers le formulaire pour signifier à l'utilisateur qu'il y a une erreur dans son formulaire :
+```
+ public function store(Request $request)
+    {
+        $this -> validate($request, [
+            'title' => 'required|max:20|min:4'
+        ]);
+        
+        dd($request -> get('title'));
+    }
+```
+
+On peut afficher un message d'erreur en dessous de l'input pour indiquer le type d'erreur à l'utilisateur :
+```
+  <form action="{{ route('posts.store') }}" method="post">
+        @csrf
+        <div style="margin-bottom: 10px">
+            <label for="title">Title :</label>
+            <input type="text" name="title" id="title"><br>
+            @error('title')
+           <p style="color: red">{{ $message }}</p>
+            @enderror
+        </div>
+        
+        <button type="submit">Post</button>
+    </form>
+```
+
+On peut changer le message par défaut que fourni laravel pour les erreurs de validité en ajoutant un second paramètre dans le request de validité(dans la method store) :
+```
+     $this -> validate($request, [
+                'title' => 'required|max:20|min:4'
+            ],[
+               'title.required'=>'Veuillez ajouter un titre',
+               'title.max'=>'Le titre doit pas avoir plus de 20 caractères',
+               'title.min'=>'Le titre doit avoir au moins 4 caractères',
+            ]);
+```
+
+On va éviter d'effacer toutes les saisies du formulaire juste parce qu'une donnée est invalide,
+on va utiliser l'attribut **value** pour les différents inputs et il aura pour valeur l'input avec la fonction _old_ de blade :
+```
+     <form action="{{ route('posts.store') }}" method="post">
+            @csrf
+            <div style="margin-bottom: 10px">
+                <label for="title">Title :</label>
+                <input type="text" name="title" id="title" value="{{ old('title') }}"><br>
+                @error('title')
+               <p style="color: red">{{ $message }}</p>
+                @enderror
+            </div>
+    
+            <div style="margin-bottom: 10px">
+                <label for="body">Body :</label>
+                <textarea  name="body" id="body">{{ old('body') }}</textarea><br>
+                @error('body')
+                <p style="color: red">{{ $message }}</p>
+                @enderror
+            </div>
+    
+            <button type="submit">Post</button>
+        </form>
+```
+> pour le textarea, il sera entre les deux balise et non dans un attribut _value_
+
+on peut ajouter un style particulier a un input en cas d'erreur :
+- on définit le style de la classe :
+    ```
+    <style>
+        .red{
+            border: 2px solid red;
+        }
+    </style>
+  ```
+- on assigne la classe dans la fonction _@error_ de blade :`<input class="@error('title') red @enderror" type="text" name="title" id="title" value="{{ old('title') }}"><br>`
+
+### Redirection(après une action)
+
+Après une requête( par exemple lors de l'envoi des données d'un formulaire dans la BDD), on peut définir la vue vers laquelle on veut diriger l'utilisateur .
+
+Il se fera dans la method dans laquelle on exécute la requête (exemple ici la method store) : `return redirect('/posts');`
+> on peut aussi défini un nom à la route pour pouvoir référencer celle-ci à partir du nom :
+   ```
+dans la route :
+     Route ::get('/posts', [PostController::class, 'index'])->name('posts.index') :
+ 
+dans la method :    
+    return redirect() -> route('posts.index');
+```
+
+- Si on a le formulaire et la liste des éléments soumis dans la même page, on utilisera alors la fonction **back()** qui redirige vers la même page : `return back();`
+
+- On peut aussi diriger l'utilisateur vers l'élément qu'il vient de créer(pas la liste)
+    ```
+     public function store(Request $request)
+        {
+            $this -> validate($request, [
+                'title' => 'required|max:20|min:4',
+                'body' => 'required|max:255|min:6',
+            ], [
+                'title.required' => 'Veuillez ajouter un titre',
+                'title.max' => 'Le titre doit pas avoir plus de 20 caractères',
+                'title.min' => 'Le titre doit avoir au moins 4 caractères',
+            ]);
+    
+            $id = 1;
+            return redirect('/posts/' . $id);
+        }
+  ```
+En nommant la route on peut le faire encore plus propre avec le nom de la route et en mettant l'id en tant que deuxième argument : `return redirect()->route('posts.show',$id);`
+
+### Messages flash
+
+Lors de la redirection de l'utilisateur vers une vue après une requête(création de post, modification, suppression), on doit pouvoir afficher un message pour confirmer l'action de la requête
+
+- on peut le faire en utiliser la fonction **session()**
+    - dans la method :
+        ```
+         public function store(Request $request)
+            {
+                $this -> validate($request, [
+                    'title' => 'required|max:20|min:4',
+                    'body' => 'required|max:255|min:6',
+                ], [
+                    'title.required' => 'Veuillez ajouter un titre',
+                    'title.max' => 'Le titre doit pas avoir plus de 20 caractères',
+                    'title.min' => 'Le titre doit avoir au moins 4 caractères',
+                ]);
+        
+                session()->flash('status','Votre post a été créé!');
+        
+                $id = 1;
+                return redirect()->route('posts.show',$id);
+            }
+      ```
+    
+    - dans la vue :
+        ```
+         @if (session()->has('status'))
+            <div>
+                <p style="color: darkgreen">{{ session()->get('status') }}</p>
+            </div>
+         @endif
+      ```
+- on peut le faire directement dans le return lors du redirect avec la fonction **with()** :
+    - dans la method :
+        ```
+         public function store(Request $request)
+            {
+                $this -> validate($request, [
+                    'title' => 'required|max:20|min:4',
+                    'body' => 'required|max:255|min:6',
+                ], [
+                    'title.required' => 'Veuillez ajouter un titre',
+                    'title.max' => 'Le titre doit pas avoir plus de 20 caractères',
+                    'title.min' => 'Le titre doit avoir au moins 4 caractères',
+                ]);
+                
+                $id = 1;
+                return redirect()
+                    ->route('posts.show',$id)
+                    ->with('status','Votre post a été créé!');
+            }
+      ```
+    - dans la vue :
+        ```
+          @if (session('status'))
+                <div>
+                    <p style="color: darkgreen">{{ session('status') }}</p>
+                </div>
+            @endif
+      ```
+
+- on peut aussi gérer le flash message avec la method magic **withStatus** (ça peut être le mot qu'on veut=> withSuccess,withError, etc...:
+    ```
+     return redirect()
+        ->route('posts.show',$id)
+        ->withStatus('Votre post a été créé!');
+        }
+  ```
+   
+- on peut défini une section (dans la vue par défaut) pour afficher tous les flashs messages :
+    ```
+  dans la vue par défaut(**resources/views/layouts/app.blade.php**) :
+  
+    @include('layouts.partials._head')
+            <div>
+            @include('layouts.partials._nav')
+    
+                @if (session('status'))
+                    <div>
+                        <p style="color: darkgreen">{{ session('status') }}</p>
+                    </div>
+                @endif
+    
+                @yield('content')
+            </div>
+    @include('layouts.partials._footer')
+  
+  dans la method store :
+      return redirect()
+         ->route('posts.index')
+         ->withStatus('Votre post a été créé!');
+  ```
+
+   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

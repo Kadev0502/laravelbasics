@@ -2,6 +2,12 @@
         <div>
         @include('layouts.partials._nav')
 
-        @yield('content')
+            @if (session('status'))
+                <div>
+                    <p style="color: darkgreen">{{ session('status') }}</p>
+                </div>
+            @endif
+
+            @yield('content')
         </div>
 @include('layouts.partials._footer')

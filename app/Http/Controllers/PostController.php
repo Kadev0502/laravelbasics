@@ -34,6 +34,18 @@ class PostController extends Controller
 
     public function store(Request $request)
     {
-        dd($request ->get('title'));
+        $this -> validate($request, [
+            'title' => 'required|max:20|min:4',
+            'body' => 'required|max:255|min:6',
+        ], [
+            'title.required' => 'Veuillez ajouter un titre',
+            'title.max' => 'Le titre doit pas avoir plus de 20 caractères',
+            'title.min' => 'Le titre doit avoir au moins 4 caractères',
+        ]);
+
+
+        return redirect()
+            ->route('posts.index')
+            ->withStatus('Votre post a été créé!');
     }
 }
