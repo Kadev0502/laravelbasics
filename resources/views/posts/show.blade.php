@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-    <div>
+    <div style="margin: 25px 0">
 
     {{ $id }}
     </div>

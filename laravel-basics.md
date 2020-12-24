@@ -297,6 +297,63 @@ Pour créer un controller, on peut utiliser la console : `php artisan make:contr
                 return view('home');
             }
       ```
-- efzqf
-- efzqf
 
+## Gestion des formulaires
+
+- on va créer une vue qui va afficher un formulaire d'ajout de post : `Route ::get('/posts/create',[PostController::class,'create'] );`
+> mettre la route d'affichage du formulaire avant la route index pour qu'il soit prioritaire
+
+- on va ensuite créer la method appelée dans la route dans le controller (elle va return juste une vue) :
+    ```
+    public function create()
+        {
+            return view('posts.create');
+        }
+  ```
+- on va ensuite créer cette vue :
+    ```
+    @extends('layouts.app')
+    
+    @section('content')
+        <form action="" method="post">
+            
+            <input type="text" name="title" id="title">
+            
+            <button type="submit">Post</button>
+        </form>
+    @endsection
+
+  ```
+
+- on va créer une route qui va soumettre ce formulaire : `Route ::post('/posts',[PostController::class,'store'] );`
+> cette route sera de type post car elle va envoyer une requête vers la BDD
+    
+- on va referencer l'action du formulaire(dans l'attribut action de la balise form) : ` <form action="/posts" method="post">`
+
+- on va protéger le formulaire grâce à une fonction spéciale de laravel(**@csrf**) qu'on mettra juste après la balise d'ouverture form :
+    ```
+      <form action="/posts" method="post">
+            @csrf
+            <input type="text" name="title" id="title">
+    
+            <button type="submit">Post</button>
+        </form>
+  ```
+> cette fonction crée un token dans un form hidden(voir code source)
+
+- on va maintenant créer la method de la route(store) :
+    ```
+     public function store(Request $request)
+        {
+            dd($request ->get('title'));
+        }
+  ```
+  
+Pour faire plus propre, on va nommer nos routes et pouvoir utiliser ces noms pour référencer nos routes :
+
+Exemple : `Route ::post('/posts', [PostController::class, 'store'])->name('posts.store');`
+
+On aura alors dans l'action du formulaire : `<form action="{{ route('posts.store') }}" method="post">`
+> on utilise la fonction route de blade .
+
+gsvqvw
