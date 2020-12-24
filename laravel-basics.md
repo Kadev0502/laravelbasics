@@ -653,17 +653,174 @@ Généralement, lors de la création d'un model, on crée en même temps la migr
 
 ## Travailler avec Eloquent de Laravel
 
+Eloquent permet de gérer les requêtes vers la BDD ( c'est via le model que le controller pourra envoyer dynamiquement les données vers la vue)
 
+### Les bases
 
+- on utilisera la fonction **get()** pour récupérer les données de toutes les rangées d'une table :
+    ```
+    Route ::get('/example', function() {
+        $posts = Post ::get();
+        dd($posts);
+    });
+  ```
+  > on utilise la classe du model(bien appeler la classe `use App\Models\Post;`) et la fonction via une variable
+- la fonction **first()** permet de récupérer les données de la première rangée d'une table : `$posts = Post ::first();`
+- la fonction **find(id)** permet de récupérer les données d'une rangée via son id : 
+    ```
+    Route ::get('/example/{id}', function($id) {
+        $post = Post ::find($id);
+        dd($post);
+    });
+  ```
+- la fonction **where()** permet de spécifier les données d'une rangée, elle est généralement suivie d'une autre fonction :
+    ```
+  Recherche via le titre:
+  
+    Route ::get('/example/{id}', function($id) {
+        $post = Post ::where('title' ,'=', 'Post One')->first();
+        dd($post);
+    });
+  
+  Recherche via le id :
+    Route ::get('/example/{id}', function($id) {
+        $post = Post ::where('id' ,'=', $id)->first();
+        dd($post);
+    });
+  
+  Recherche plusieurs éléments via le id :
+    Route ::get('/example/{id}', function($id) {
+            $post = Post ::where('id' ,'>', 1)->get();
+            dd($post);
+        });
+  ```
+> where étant une condition, une peut être suivi d'une autre condition(exemple une condition selon le title ...) 
 
+- la fonction **create()** permet de créer une rangée dans une table(insérer une valeur)
+    ```
+    Route ::get('/example', function() {
+        $post = Post ::create([
+            'title'=>'New Post',
+            'body'=>'New Post body',
+        ]);
+        dd($post);
+    });
+  ```
+    > elle doit avoir comme arguments les valeurs des colonnes de la rangée
 
+    - par sécurité, on doit ajouter les colonnes de la tables comme valeurs de la propriété _$fillable_ dans le model :`protected $fillable = ['title','body',];`
+    
+    Une fois fait, la rangée sera créée dans la table.
 
+- pour modifier une rangée, on va d'abord indexer celle-ci puis la modifier :
+    ```
+    Route ::get('/example/{id}', function($id) {
+    
+        $post = Post ::find($id );
+        $post -> update([
+            'body'=>'New Post body updated again',
+        ]);
+    
+        dd($post);
+    });
+  ```
 
+- pour supprimer une rangée, on va d'abord indexer celle-ci puis la supprimer :
+    ```
+   Route ::get('/example/{id}', function($id) {
+   
+       $post = Post ::find($id );
+       $post -> delete();
+   
+       dd($post);
+   });
 
+  ```
+    > on peut utiliser la fonction **where()** pour supprimer plusieurs rangées.
 
+    ```
+    Route ::get('/example/', function() {
+    
+        $posts = Post ::where('id' ,'>',1);
+        //number of posts deleted
+    
+        $posts -> delete();
+        
+    });
+  ```
 
+### Les relations entre els tables avec Eloquent
 
+Des tables peuvent avoir une relation entre elles.
 
+- on va créer une migration pour ajouter une colonne _user_id_ à la table **posts** :`php artisan make:migration add_user_id_to_posts_table --table=posts`
+> --table=posts : permet de referencer à Schema la table.
+- on va ajouter la colonne au deux method dans la migration
+    ```
+     public function up()
+        {
+            Schema::table('posts', function (Blueprint $table) {
+                $table -> bigInteger('user_id') -> unsigned() -> index();
+            });
+        }
+  
+     public function down()
+        {
+            Schema::table('posts', function (Blueprint $table) {
+                $table -> dropColumn('user_id');
+            });
+        }
+  ```
+- on va créer une relation entre le model **User** et le model **Post**
+    - dans le model User, on va créer la relation entre les utilisateurs et le model post :
+        ```
+        
+        public function posts()
+        {
+            return $this -> hasMany(Post ::class);
+        }
+      ```
+      > la relation sera de type hasMany car un utilisateur peut avoir plusieurs posts
+
+         - on va ajouter manuellement un utilisateur et des posts dns la BDD.
+         - pour accéder aux posts d'un utilisateur, on aura juste à utiliser le model User et à indexer la table _posts_ comme propriété :
+            ```
+                Route ::get('/example/', function() {
+                
+                $user = User::find(1);
+                dd($user->posts);
+                });
+            ```
+    
+    - dans le model Post, on va créer la relation entre les posts et le model User :
+        ```
+        
+        public function user()
+           {
+               return $this -> belongsTo(User::class);
+           }
+      ```
+      > la relation sera de type belongsTo car un post appartiendra à seulement un utilisateur
+      - pour accéder à l'utilisateur d'un post, on aura juste à utiliser le model Post et à indexer la table _users_ comme propriété :
+        ```
+           Route ::get('/example/', function() {
+           
+           $post = Post::find(5);
+           dd($post->user);
+           });
+        ```     
+- on peut créer un post tout en assignant l'utilisateur à qui celui-ci appartiendra :
+    ```
+    Route ::get('/example/', function() {
+    
+        $user = User ::find(3);
+    
+        $user -> posts() -> create([
+            'title' => 'Abc',
+            'body' => 'Abc efG hij',
+        ]);
+    });
+  ```
 
 
 
