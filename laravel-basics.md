@@ -624,11 +624,34 @@ Pour envoyer la migration vers la BDD, on fera la commande : `php artisan migrat
                 });
             }
       ```
-      - envoyer ensuite la table et/ou la colonne créée dans la base de donnée(`php artisan migrate`)
-- fsfsqwf 
+      - envoyer ensuite la table et la colonne créée dans la base de donnée(`php artisan migrate`)
 
+## Les models
 
+Les models se trouve dans le dossier **app/Models**.
 
+Il existe une commande avec laravel pour créer un model : `php artisan make:model NomDuModel`
+
+Généralement, lors de la création d'un model, on crée en même temps la migration de celui-ci (le faire avec la commande de création du model suivi de **-m**)
+
+- pour créer un model et une migration de gestion des posts, on fera la commande : `php artisan make:model Post -m`
+
+- on va ensuite ajouter les colonnes dont on a besoin pour la création d'un post(title,body) :
+    ```
+    public function up()
+        {
+            Schema::create('posts', function (Blueprint $table) {
+                $table->id();
+                $table->string('title');
+                $table->text('body');
+                $table->timestamps();
+            });
+        }
+  ```
+- envoyer la migration vers la BDD(`php artisan migrate`)
+    - on va remplir la table _posts_ manuellement dans la BDD
+
+## Travailler avec Eloquent de Laravel
 
 
 
