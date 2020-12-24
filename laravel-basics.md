@@ -567,7 +567,65 @@ Lors de la redirection de l'utilisateur vers une vue après une requête(créati
          ->withStatus('Votre post a été créé!');
   ```
 
-   
+## les migrations
+
+Avec Laravel, la gestion de la BDD sze fait à partir des fichiers migrations (**database/migrations**).
+
+Avant toute chose:
+- on va créer une BDD dans notre app Mysql ou via Mysql(à partir du terminal) 
+- puis setter la BDD dans le fichier **.env**
+    ```
+    DB_CONNECTION=mysql
+    DB_HOST=127.0.0.1
+    DB_PORT=3306
+    DB_DATABASE=laravelbasics
+    DB_USERNAME=root
+    DB_PASSWORD=root1234
+  ```
+
+Une fois la BDD créée, on va travailler avec la migration des utilisateurs (présent par défaut lors de l'installation du projet laravel).
+
+Pour envoyer la migration vers la BDD, on fera la commande : `php artisan migrate`
+> cela va créer deux tables dans la BDD(migrations et users)
+
+-  en cas d'erreur si on veut reveir en arrière(supprimer la migration effectuée), on fera la commande : `php artisan migrate:rollback`
+> cela va garder la table migrations dans la BDD mais pas la table users(celui-là même qu'on voulait retirer de la BDD)
+
+- Pour créer une migration, on fera la commande : `php artisan make:migration create_nom-de-la-migration(s)_table`
+    ```
+  make:migration create_posts_table
+  ```
+> cela crée une table avec la colonne id et des timestamps déjà présentes.
+
+- pour modifier les colonnes d'une table, on utilisera la commande : 
+    - pour ajouter une colonne : `php artisan make:migration add_nom-de-la-colonne_to_users_table` 
+        ```
+      php artisan make:migration add_username_to_users_table
+      ```
+    - on définit à l'intérieur de la migration le nom de la colonne et ses propriétés (pour la création => method _up_) et 
+    la suppression de cette colonne (pour la suppression => method _down_)
+        ```
+         public function up()
+            {
+                Schema ::table('users', function(Blueprint $table) {
+                    $table -> string('username') -> unique();
+                });
+            }
+        
+            /**
+             * Reverse the migrations.
+             *
+             * @return void
+             */
+            public function down()
+            {
+                Schema ::table('users', function(Blueprint $table) {
+                    $table -> dropColumn('username');
+                });
+            }
+      ```
+      - envoyer ensuite la table et/ou la colonne créée dans la base de donnée(`php artisan migrate`)
+- fsfsqwf 
 
 
 
