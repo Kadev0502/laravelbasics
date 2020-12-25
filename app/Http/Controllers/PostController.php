@@ -9,12 +9,7 @@ class PostController extends Controller
 {
     public function index()
     {
-        $posts = [
-            ['id' => 1, 'title' => 'Post One'],
-            ['id' => 2, 'title' => 'Post Two'],
-            ['id' => 3, 'title' => 'Post Three'],
-            ['id' => 4, 'title' => 'Post Four'],
-        ];
+        $posts = Post ::latest()->paginate(10);
 
         return view('posts.index', [
             'posts' => $posts
@@ -33,20 +28,18 @@ class PostController extends Controller
         return view('posts.create');
     }
 
+
     public function store(Request $request)
     {
         $this -> validate($request, [
             'title' => 'required|max:20|min:4',
             'body' => 'required|max:255|min:6',
-        ], [
-            'title.required' => 'Veuillez ajouter un titre',
-            'title.max' => 'Le titre doit pas avoir plus de 20 caractères',
-            'title.min' => 'Le titre doit avoir au moins 4 caractères',
         ]);
 
+        Post ::create($request->only('title','body'));
 
         return redirect()
-            ->route('posts.index')
-            ->withStatus('Votre post a été créé!');
+            -> route('posts.index')
+            -> withStatus('Votre post a été créé!');
     }
 }

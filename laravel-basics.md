@@ -840,17 +840,158 @@ Pour rendre la connection entre la route et le model encore plus logique et dyna
             ]);
         }
   ```
-- dfzfezf
+
 ## Mettre les connaissances ensemble pour comprendre le MVC
 
+- on va afficher dynamiquement(via la BDD) la liste des posts via la method **index** :
+    ```
+     public function index()
+        {
+            $posts = Post::get();
+    
+            return view('posts.index', [
+                'posts' => $posts
+            ]);
+        }
+  ```
+    - dans la vue :
+        ```
+        @extends('layouts.app')
+        
+        @section('content')
+            <div style="margin: 25px">
+                <a href="{{ route('posts.create') }}">Create Post</a>
+            </div>
+            @if (count($posts))
+                @foreach ($posts as $post)
+                    <div>
+                         <a href="{{ route('posts.show',$post) }}">{{ $post->title}}</a>
+                    </div>
+                @endforeach
+            @else
+                il n'y a pas de posts
+            @endif
+        @endsection
+      ```
+  > on peut gérer l'ordre d'affichage des post(selon le dernier post par exemple) avec la fonction **latest()** : ` $posts = Post ::latest()->get();`
+- la method **create** permet d'afficher le formulaire de création de post
 
+- on va rendre dynamique la création de post via la method **store** :
+    ```
+         public function store(Request $request)
+            {
+                $this -> validate($request, [
+                    'title' => 'required|max:20|min:4',
+                    'body' => 'required|max:255|min:6',
+                ]);
+        
+                Post ::create([
+                    'title'=>$request->title,
+                    'body'=>$request->body,
+                ]);
+        
+                return redirect()
+                    -> route('posts.index')
+                    -> withStatus('Votre post a été créé!');
+            }
+    ```
+    - on peut le rendre encore plus simple en utilisant la fonction _only()_ à l'intérieur de l'argument _$request_ :
+        ```
+         public function store(Request $request)
+            {
+                $this -> validate($request, [
+                    'title' => 'required|max:20|min:4',
+                    'body' => 'required|max:255|min:6',
+                ]);
+        
+                Post ::create($request->only('title','body'));
+        
+                return redirect()
+                    -> route('posts.index')
+                    -> withStatus('Votre post a été créé!');
+            }
+      ```
+- on va afficher dynamiquement(via la BDD) un post via la method **show** :
+    ```
+    public function show(Post $post)
+        {
+            return view('posts.show', [
+                'post' => $post
+            ]);
+        }
+  ```
+    - dans la vue :
+        ```
+        @extends('layouts.app')
+        
+        @section('content')
+            <h1> {{ $post->title }}</h1>
+        
+           <p> {{ $post->body }}</p>
+        
+        
+            <a href="{{ route('posts.index') }}">Back to list</a>
+        @endsection
+
+      ```
 
 ## Les paginations
 
+Pour pouvoir voir comment fonctionne la pagination, on va créer des données fake avec **Factory** :
 
+Les factory se trouve dans le dossier **database/factories**
 
+- on va créer un factory pour le model _Post_ avec la commande : `php artisan make:factory PostFactory`
 
+-  on va aller dans le fichier et définir le faker pour chaque colonne de la rangée de la table dans la method _definition_ :
+    ```
+      public function definition()
+        {
+            return [
+                'title'=>$this->faker->sentence(10),
+                'body'=>$this->faker->sentence(200),
+            ];
+        }
+   ```
+- pour envoyer notre fake données dans la BDD, on va utiliser **tinker** de laravel avec la commande : `php artisan tinker` .
+    
+    - une fois dans tinker, saisir la commande suivante pour envoyer le faker dans la BDD : `App\Models\Post::factory()->create();`
+    - pour en créer plusieurs, on va utiliser la fonction _tiles()_ : `App\Models\Post::factory()->times(200)->create();`
+    
 
+Pour utiliser la pagination, on utilisera la fonction **paginate**(à la place de la method **get**) dans la method _index_ qui affiche la liste des posts :
+```
+     public function index()
+        {
+            $posts = Post ::latest()->paginate(10);
+    
+            return view('posts.index', [
+                'posts' => $posts
+            ]);
+        }
+```
+
+- dans la vue, on va ajouter les liens de pagination :
+    ```
+    @extends('layouts.app')
+    
+    @section('content')
+        <div style="margin: 25px">
+            <a href="{{ route('posts.create') }}">Create Post</a>
+        </div>
+        @if ($posts->count())
+            @foreach ($posts as $post)
+                <div>
+                    <a href="{{ route('posts.show',$post) }}">{{ $post->title}}</a>
+                </div>
+            @endforeach
+            {{ $posts ->links() }}
+        @else
+            il n'y a pas de posts
+        @endif
+    @endsection
+  ```
+- 
 
 
 
