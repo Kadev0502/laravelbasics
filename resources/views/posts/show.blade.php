@@ -1,9 +1,10 @@
 @extends('layouts.app')
 
 @section('content')
+    <h1> {{ $post->title }}</h1>
 
-    <div style="margin: 25px 0">
-        {{ $id }}
-    </div>
+   <p> {{ $post->body }}</p>
+
+
     <a href="{{ route('posts.index') }}">Back to list</a>
 @endsection

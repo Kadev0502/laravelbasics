@@ -822,7 +822,30 @@ Des tables peuvent avoir une relation entre elles.
     });
   ```
 
+## Liaison entre les route et les models
 
+Pour gérer les requêtes vers la BDD, on va utiliser le model pour accéder aux valeurs pour rendre le projet dynamique .
+
+Pour rendre la connection entre la route et le model encore plus logique et dynamique :
+- on va passer dans la route le model en troisième segment de l'url : `Route ::get('/posts/{post}', [PostController::class, 'show']) -> name('posts.show');`
+> cela permettra au model d'être accessible dans le controller
+
+> on peut ajouter devant le model la colonne via laquelle on veut afficher la rangée. exemple : `Route ::get('/posts/{post:title}', [PostController::class, 'show']) -> name('posts.show');`
+- le model sera ensuite l'argument de la method dans le controller
+    ```
+      public function show(Post $post)
+        {
+            return view('posts.show', [
+                'post' => $post
+            ]);
+        }
+  ```
+- dfzfezf
+## Mettre les connaissances ensemble pour comprendre le MVC
+
+
+
+## Les paginations
 
 
 
